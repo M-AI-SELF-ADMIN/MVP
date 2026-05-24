@@ -1,10 +1,4 @@
-# Python
 __pycache__/
-*.py[cod]
-.venv/
-.pytest_cache/
-
-# OS/editor
+*.pyc
 .DS_Store
-.vscode/
-.idea/
+memory/checkpoints/*.json
