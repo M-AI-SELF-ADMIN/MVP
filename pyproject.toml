@@ -1,0 +1,9 @@
+[project]
+name = "mvp"
+version = "0.1.0"
+description = "MVP scaffold"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
