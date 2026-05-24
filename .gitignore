@@ -1,10 +1,6 @@
-# Python
 __pycache__/
 *.py[cod]
+*.egg-info/
+build/
+dist/
 .venv/
-.pytest_cache/
-
-# OS/editor
-.DS_Store
-.vscode/
-.idea/
