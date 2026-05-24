@@ -5,5 +5,15 @@ description = "MVP scaffold"
 requires-python = ">=3.11"
 
 [tool.pytest.ini_options]
-addopts = "-q"
+addopts = "-q --cov=mvp --cov-report=term-missing --cov-fail-under=90"
 testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.coverage.run]
+branch = true
+source = ["src/mvp"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 90
