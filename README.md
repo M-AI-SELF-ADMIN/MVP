@@ -1,12 +1,95 @@
 # MVP
 
-Minimal Python project scaffold with a working test setup.
+A minimal Python project scaffold with a clean `src/` layout, testing, linting, and type checking.
 
-## Quick start
+## Installation
+
+Choose one of the following approaches.
+
+### Option A: Development install (recommended)
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -U pip pytest
+pip install -U pip
+pip install -e .[dev]
+```
+
+### Option B: If extras are not configured yet
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -U pip
+pip install -e .
+pip install pytest ruff mypy
+```
+
+## Quick usage examples
+
+### Import and call from Python
+
+```python
+from mvp import add
+
+print(add(1, 2))   # 3
+print(add(-5, 8))  # 3
+print(add(0, 0))   # 0
+```
+
+### Try in a one-liner
+
+```bash
+python -c "from mvp import add; print(add(10, 32))"
+```
+
+### Run tests
+
+```bash
+pytest
+```
+
+## Development workflow
+
+Use this sequence before opening a PR.
+
+1. **Format and lint**
+   ```bash
+   ruff format .
+   ruff check .
+   ```
+2. **Type check**
+   ```bash
+   mypy src
+   ```
+3. **Run test suite**
+   ```bash
+   pytest
+   ```
+
+If your environment requires explicit module resolution, use:
+
+```bash
 PYTHONPATH=src pytest
 ```
+
+## Project goals
+
+- Keep a small, readable baseline Python package template.
+- Provide a fast feedback loop for tests, linting, and typing.
+- Stay easy to extend into real application or library code.
+
+## Roadmap milestones
+
+- **Milestone 1: Foundation (current)**
+  - Stable package layout and import path.
+  - Passing tests for core functions.
+- **Milestone 2: Developer tooling hardening**
+  - Ensure `.[dev]` extras are fully defined and reproducible.
+  - Add CI to enforce lint/test/typecheck on every change.
+- **Milestone 3: API growth and documentation**
+  - Expand public API beyond arithmetic demo helpers.
+  - Add `docs/` with MkDocs or Sphinx once API surface grows.
+- **Milestone 4: Distribution readiness**
+  - Versioning/release process.
+  - Packaging and publishing checks.
