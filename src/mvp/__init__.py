@@ -1,5 +1,5 @@
-"""MVP package."""
+"""Public API surface for the MVP package."""
 
+from .math_ops import add
 
-def add(a: int, b: int) -> int:
-    return a + b
+__all__ = ["add"]
