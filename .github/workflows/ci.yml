@@ -11,6 +11,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.11", "3.12"]
+        python-version: ['3.11', '3.12']
 
     steps:
       - name: Checkout
@@ -72,3 +73,30 @@ jobs:
           with summary_path.open("a", encoding="utf-8") as fh:
               fh.write(summary)
           PY
+          pip install -e .
+          pip install pytest pytest-cov ruff mypy
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Type-check (mypy)
+        run: mypy src tests
+
+      - name: Test (pytest + coverage)
+        run: pytest --cov=src --cov-report=term-missing --cov-report=xml
+
+      - name: Add coverage to job summary
+        run: |
+          {
+            echo "## Coverage summary (Python ${{ matrix.python-version }})"
+            echo
+            pytest --cov=src --cov-report=term --cov-report= >/tmp/coverage.txt
+            sed -n '/^Name/,/^TOTAL/p' /tmp/coverage.txt
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml-py${{ matrix.python-version }}
+          path: coverage.xml
+          if-no-files-found: error
