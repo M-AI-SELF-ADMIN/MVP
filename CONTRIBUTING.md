@@ -1,32 +1,32 @@
 # Contributing
 
-Thanks for contributing to this project.
+Thanks for contributing to `mvp`.
 
 ## Development setup
 
-1. Create and activate a virtual environment:
-   - `python -m venv .venv`
-   - `source .venv/bin/activate`
-2. Upgrade packaging tools:
-   - `python -m pip install --upgrade pip`
-3. Install development dependencies:
-   - `python -m pip install -e .`
-   - `python -m pip install pytest ruff mypy coverage build twine`
+1. Create and activate a virtual environment.
+2. Install project dependencies (including dev tools):
+   - `pip install -e .`
+   - `pip install -e .[dev]` if extras are used, or install via your dependency-group workflow.
 
 ## Common commands
 
-- Run tests: `make test`
-- Run lint checks: `make lint`
-- Run type checking: `make typecheck`
-- Auto-format code: `make format`
+- Run tests: `pytest`
+- Run linting: `ruff check .`
+- Run formatting: `ruff format .`
+- Run type checks: `mypy`
+- Run coverage: `coverage run -m pytest && coverage report`
 
-You can also run all checks with `make check`.
+Or use Make targets:
+
+- `make test`
+- `make lint`
+- `make format`
+- `make typecheck`
 
 ## Branch and commit guidance
 
-- Create a focused branch per change, for example: `feat/add-coverage-config` or `chore/update-tooling`.
-- Keep commits small and meaningful.
-- Use clear commit messages in the imperative mood, for example:
-  - `Add mypy configuration`
-  - `Add dev dependency group`
-- Before opening a PR, run `make check` and ensure all commands pass.
+- Branch from `main` with a descriptive name, for example `feat/add-ci-config`.
+- Keep commits focused and logically grouped.
+- Write commit messages in imperative mood, e.g. `Add mypy strict configuration`.
+- Before opening a PR, run tests, linting, type checks, and formatting.

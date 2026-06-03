@@ -8,6 +8,12 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -26,6 +32,35 @@ dist/
 .nox/
 
 # IDE/editor
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+.DS_Store
+memory/checkpoints/*.json
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache & tooling
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# IDE / editor
 .vscode/
 .idea/
 .DS_Store
