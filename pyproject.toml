@@ -2,6 +2,7 @@
 name = "mvp"
 version = "0.1.0"
 description = "MVP scaffold"
+requires-python = ">=3.11"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
