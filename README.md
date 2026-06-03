@@ -1,5 +1,7 @@
 # MVP
 
+A minimal Python project scaffold with a clean `src/` layout, testing, linting, and type checking.
+
 Minimal Python project scaffold with a working test setup and a tiny
 architecture-aligned core for eventing + memory.
 
