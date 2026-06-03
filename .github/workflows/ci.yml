@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+    branches: ["**"]
     branches: [main]
   pull_request:
 
@@ -9,6 +10,11 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
@@ -18,11 +24,17 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install pytest build twine
           pip install pytest build
 
       - name: Run tests
         run: PYTHONPATH=src pytest
 
+      - name: Build distribution
+        run: python -m build
+
+      - name: Validate built artifacts
+        run: twine check dist/*
       - name: Validate distribution build
         run: python -m build
   pull_request:

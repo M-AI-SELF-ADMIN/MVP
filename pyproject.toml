@@ -10,6 +10,32 @@ description = "MVP scaffold"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
+authors = [
+  { name = "MVP Maintainers" }
+]
+keywords = ["packaging", "python", "template"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Libraries"
+]
+
+[project.urls]
+Homepage = "https://github.com/example/mvp"
+Repository = "https://github.com/example/mvp"
+Changelog = "https://github.com/example/mvp/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+requires-python = ">=3.11"
+license = "MIT"
 authors = [{ name = "MVP maintainers" }]
 classifiers = [
   "Development Status :: 3 - Alpha",
