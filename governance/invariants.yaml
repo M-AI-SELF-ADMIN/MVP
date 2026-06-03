@@ -1,0 +1,5 @@
+invariants:
+  - coherence_preservation
+  - mutation_traceability
+  - reflective_validation
+  - persistence_integrity

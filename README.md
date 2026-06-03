@@ -1,12 +1,26 @@
-# MVP
+# Persistent Adaptive Engineering Process (PAEP)
 
-Minimal Python project scaffold with a working test setup.
+A seed repository for building reflective, adaptive, memory-native engineering runtimes.
 
-## Quick start
+## Features
+
+- Persistent memory layer
+- Adaptive orchestration runtime
+- Reflection engine
+- Mutation/evolution pipeline
+- Governance and coherence validation
+- Regeneration checkpoints
+
+## Quick Start
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip pytest
-PYTHONPATH=src pytest
+python runtime/main.py
+```
+
+## Architecture
+
+```
+intent -> execution -> observation -> memory
+       -> reflection -> mutation -> validation
+       -> evolution -> persistence
 ```
