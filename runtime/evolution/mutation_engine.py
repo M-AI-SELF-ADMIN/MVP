@@ -3,8 +3,5 @@ def propose_mutation(memory):
 
     memory.record(
         "mutation_proposal",
-        {
-            "target": "orchestration_layer",
-            "strategy": "adaptive_scaling"
-        }
+        {"target": "orchestration_layer", "strategy": "adaptive_scaling"}
     )
