@@ -1,11 +1,7 @@
-.PHONY: test lint typecheck format check
+.PHONY: test lint typecheck format coverage check build
 
 test:
 	python -m pytest
-.PHONY: test lint typecheck format
-
-test:
-	pytest
 
 lint:
 	ruff check .
@@ -16,8 +12,11 @@ typecheck:
 format:
 	ruff format .
 
-check: lint typecheck test
-	mypy
+coverage:
+	coverage run -m pytest
+	coverage report
 
-format:
-	ruff format .
+check: lint typecheck test
+
+build:
+	python -m build
