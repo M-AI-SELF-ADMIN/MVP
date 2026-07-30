@@ -1,15 +1,30 @@
-name: Publish
+name: Publish Python package
 
 on:
   push:
-    tags:      - "v*"
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
+    inputs:
+      repository:
+        description: "Target repository"
+        required: true
+        default: "testpypi"
+        type: choice
+        options:
+          - testpypi
+          - pypi
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+      github.event_name == 'workflow_dispatch'
     outputs:
-      version: ${{ steps.meta.outputs.version }}
+      version: ${{ steps.version.outputs.version }}
+      has-testpypi-token: ${{ steps.secrets.outputs.has_testpypi_token }}
+      has-pypi-token: ${{ steps.secrets.outputs.has_pypi_token }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,7 +37,7 @@ jobs:
       - name: Install build tools
         run: |
           python -m pip install --upgrade pip
-          pip install build twine
+          python -m pip install build twine
 
       - name: Build distribution
         run: python -m build
@@ -30,97 +45,83 @@ jobs:
       - name: Validate built artifacts
         run: twine check dist/*
 
-      - name: Capture version from tag
-        id: meta
-        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+      - name: Read project version
+        id: version
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import pathlib
+          import tomllib
+
+          version = tomllib.loads(pathlib.Path("pyproject.toml").read_text())["project"]["version"]
+          print(f"version={version}")
+          PY
 
       - name: Verify tag matches pyproject version
+        if: github.event_name == 'push'
         run: |
-          python - <<'PY'
-          import pathlib, tomllib
-          data = tomllib.loads(pathlib.Path('pyproject.toml').read_text())
-          pyproject_version = data['project']['version']
-          import os
-          tag_version = os.environ['TAG_VERSION']
-          if pyproject_version != tag_version:
-              raise SystemExit(
-                  f"Version mismatch: pyproject={pyproject_version}, tag={tag_version}"
-              )
-          print(f"Version OK: {pyproject_version}")
-          PY
+          test "${GITHUB_REF_NAME#v}" = "${PROJECT_VERSION}" || {
+            echo "Tag ${GITHUB_REF_NAME} does not match pyproject version ${PROJECT_VERSION}" >&2
+            exit 1
+          }
         env:
-          TAG_VERSION: ${{ steps.meta.outputs.version }}
+          PROJECT_VERSION: ${{ steps.version.outputs.version }}
 
-      - name: Upload dist artifacts
+      - name: Detect publish secrets
+        id: secrets
+        run: |
+          if [ -n "$TEST_PYPI_API_TOKEN" ]; then
+            echo "has_testpypi_token=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_testpypi_token=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ -n "$PYPI_API_TOKEN" ]; then
+            echo "has_pypi_token=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_pypi_token=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          TEST_PYPI_API_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Upload distribution artifacts
         uses: actions/upload-artifact@v4
         with:
           name: python-dist
           path: dist/
+          if-no-files-found: error
 
   publish-testpypi:
-    runs-on: ubuntu-latest
     needs: build
-    if: ${{ secrets.TEST_PYPI_API_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    if: |
+      needs.build.outputs.has-testpypi-token == 'true' &&
+      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+       (github.event_name == 'workflow_dispatch' && inputs.repository == 'testpypi'))
     environment: testpypi
-    permissions:
-      id-token: write
     steps:
-      - name: Download dist artifacts
+      - name: Download distribution artifacts
         uses: actions/download-artifact@v4
         with:
           name: python-dist
           path: dist/
 
       - name: Publish to TestPyPI
-      - "v*.*.*"
-  workflow_dispatch:
-    inputs:
-      repository:
-        description: "Target package repository"
-        required: true
-        default: "testpypi"
-        type: choice
-        options:
-          - testpypi
-          - pypi
-
-jobs:
-  publish:
-    runs-on: ubuntu-latest
-    if: |
-      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
-      github.event_name == 'workflow_dispatch'
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Build dists
-        run: |
-          python -m pip install --upgrade pip
-          pip install build
-          python -m build
-
-      - name: Publish to TestPyPI
-        if: |
-          (github.event_name == 'workflow_dispatch' && inputs.repository == 'testpypi') ||
-          (github.event_name == 'push' && secrets.TEST_PYPI_API_TOKEN != '')
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
 
   publish-pypi:
-    runs-on: ubuntu-latest
     needs: build
-    if: ${{ secrets.PYPI_API_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    if: |
+      needs.build.outputs.has-pypi-token == 'true' &&
+      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+       (github.event_name == 'workflow_dispatch' && inputs.repository == 'pypi'))
     environment: pypi
-    permissions:
-      id-token: write
     steps:
-      - name: Download dist artifacts
+      - name: Download distribution artifacts
         uses: actions/download-artifact@v4
         with:
           name: python-dist
@@ -132,16 +133,12 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
 
   publish-skipped:
-    runs-on: ubuntu-latest
     needs: build
-    if: ${{ secrets.PYPI_API_TOKEN == '' && secrets.TEST_PYPI_API_TOKEN == '' }}
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' && needs.build.outputs.has-pypi-token == 'false' && needs.build.outputs.has-testpypi-token == 'false') ||
+      (github.event_name == 'workflow_dispatch' && inputs.repository == 'testpypi' && needs.build.outputs.has-testpypi-token == 'false') ||
+      (github.event_name == 'workflow_dispatch' && inputs.repository == 'pypi' && needs.build.outputs.has-pypi-token == 'false')
     steps:
-      - name: No publish secrets configured
-        run: echo "No publish secrets set; build validation completed and upload skipped."
-      - name: Publish to PyPI
-        if: |
-          (github.event_name == 'workflow_dispatch' && inputs.repository == 'pypi') ||
-          (github.event_name == 'push' && secrets.PYPI_API_TOKEN != '')
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Report skipped publish
+        run: echo "Publishing skipped because the required secret is not configured."

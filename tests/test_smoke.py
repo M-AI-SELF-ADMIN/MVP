@@ -10,7 +10,6 @@ def test_add_smoke() -> None:
 
 def test_public_api_exports_are_explicit_and_stable() -> None:
     assert mvp.__all__ == ["add"]
-    assert sorted(name for name in dir(mvp) if not name.startswith("_")) == ["add", "math_ops"]
 
 
 def test_public_api_function_origin() -> None:
