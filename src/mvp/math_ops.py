@@ -1,4 +1,5 @@
 """Math-related operations exposed by the public ``mvp`` API."""
+"""Mathematical operations for the public MVP API."""
 
 
 def add(a: int, b: int) -> int:

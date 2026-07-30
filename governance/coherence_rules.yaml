@@ -1,0 +1,4 @@
+coherence:
+  max_runtime_drift: 0.25
+  required_validation: true
+  preserve_memory_lineage: true
