@@ -1,128 +1,166 @@
 # MVP
 
-A minimal Python project scaffold with a clean `src/` layout, testing, linting, and type checking.
+MVP is a minimal Python project scaffold for building reflective, adaptive,
+memory-native engineering runtimes. It combines a clean `src/` package layout
+with a tiny public API for arithmetic smoke tests, event publishing/replay, and
+in-memory record storage.
 
-Minimal Python project scaffold with a working test setup and a tiny
-architecture-aligned core for eventing + memory.
+## Package surface
 
-## Versioning and changelog
-
-This project follows **Semantic Versioning (SemVer)**:
-
-- **MAJOR**: incompatible API changes
-- **MINOR**: backwards-compatible functionality
-- **PATCH**: backwards-compatible bug fixes
-
-All released and unreleased changes are tracked in [`CHANGELOG.md`](./CHANGELOG.md)
-using the Keep a Changelog structure.
+- `mvp.add(a, b)` returns the sum of two integers and acts as a simple import
+  sanity check.
+- `mvp.core.Event` and `mvp.core.EventBus` provide an in-memory event stream
+  that can be published to and replayed by topic.
+- `mvp.memory.MemoryRecord` and `mvp.memory.VectorMemory` provide a small
+  key/text memory seam that can later grow into embedding-backed retrieval.
 
 ## Installation
 
-Use an isolated virtual environment, then install the package in editable mode with development extras:
-## Quick start
-# Persistent Adaptive Engineering Process (PAEP)
-
-A minimal Python project scaffold with a clean `src/` layout, testing, linting, and type checking.
-
-## Installation
-
-Choose one of the following approaches.
-
-### Option A: Development install (recommended)
+Use an isolated virtual environment, then install the package in editable mode
+with development dependencies:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -U pip
-pip install -e .[dev]
+python -m pip install --upgrade pip
+python -m pip install -e .[dev]
 ```
 
-If your shell does not support `source`, use the platform equivalent (for example, `.venv\\Scripts\\activate` on Windows PowerShell).
+On Windows PowerShell, activate the environment with:
 
-## Quick usage
+```powershell
+.venv\Scripts\Activate.ps1
+```
 
-### Python REPL
+If development extras are unavailable in your packaging toolchain, install the
+package and tools explicitly instead:
+
+```bash
+python -m pip install -e .
+python -m pip install pytest ruff mypy build
+```
+
+## Quick usage examples
+
+### Add numbers from Python
 
 ```python
 from mvp import add
 
-add(1, 2)      # 3
-add(-5, 10)    # 5
-add(0, 0)      # 0
+print(add(10, 32))
+print(add(-5, 8))
 ```
 
-### One-liner script
+### Publish and replay events
+
+```python
+from mvp.core import Event, EventBus
+
+bus = EventBus()
+bus.publish(Event(topic="intent.received", payload={"goal": "draft roadmap"}))
+bus.publish(Event(topic="memory.updated", payload={"key": "roadmap:v1"}))
+
+all_events = bus.replay()
+memory_events = bus.replay("memory.updated")
+
+print(len(all_events))      # 2
+print(memory_events[0].payload["key"])  # roadmap:v1
+```
+
+### Store and retrieve memory records
+
+```python
+from mvp.memory import VectorMemory
+
+memory = VectorMemory()
+memory.upsert("roadmap:v1", "Ship a stable scaffold, then grow the API.")
+
+record = memory.get("roadmap:v1")
+if record is not None:
+    print(record.text)
+```
+
+### Run the demo runtime
 
 ```bash
-python - <<'PY'
-from mvp import add
-
-pairs = [(1, 2), (10, 32), (-3, 7)]
-for a, b in pairs:
-    print(f"{a} + {b} = {add(a, b)}")
-PY
+python runtime/main.py
 ```
 
 ## Development workflow
 
-Run checks locally before opening a PR:
+Install the development environment first:
 
 ```bash
-# Lint (if configured in pyproject)
+python -m pip install -e .[dev]
+```
+
+Before opening a pull request, run the same quality gates locally:
+
+```bash
+ruff format .
 ruff check .
-
-# Type check (if configured in pyproject)
-mypy src
-
-# Test suite
+mypy src tests
 pytest
 ```
 
-If this project is installed with `pip install -e .[dev]`, these tools should be available in your environment.
+Common shortcuts are available through `make`:
+
+```bash
+make format
+make lint
+make typecheck
+make test
+make check
+```
 
 ## Project goals
 
-- Keep a minimal, understandable Python package layout.
-- Provide a clean baseline for testing and quality tooling.
-- Make local onboarding fast for contributors.
+- Keep the repository small, readable, and easy to install for new contributors.
+- Provide a working Python package baseline with tests, linting, and type
+  checking.
+- Preserve a clear seam between runtime orchestration, eventing, and memory.
+- Grow toward a reflective engineering runtime without hiding the core concepts
+  behind heavy infrastructure.
 
 ## Roadmap milestones
 
-- **Milestone 1 — Foundation (current):** package skeleton, importable module, and smoke tests.
-- **Milestone 2 — Quality gates:** standardize linting and typing config, enforce in CI.
-- **Milestone 3 — API growth:** add real library functionality with usage-focused tests.
-- **Milestone 4 — Documentation expansion:** add richer API and contributor docs.
+1. **Foundation:** maintain the package skeleton, importable public API, smoke
+   tests, and release notes.
+2. **Quality gates:** stabilize Ruff, mypy, pytest, and coverage configuration;
+   enforce the workflow in CI.
+3. **Runtime coherence:** connect event flow, memory updates, reflection, and
+   governance checks into a documented local loop.
+4. **API growth:** expand event and memory abstractions with usage-focused tests
+   and backwards-compatible public interfaces.
+5. **Documentation expansion:** grow the existing `docs/` folder with API guides,
+   architecture notes, and contributor workflows. If the API becomes large
+   enough, adopt MkDocs or Sphinx for versioned, navigable documentation.
 
-## Documentation direction (optional)
+## Architecture
 
-When the public API expands, add a `docs/` folder and adopt MkDocs or Sphinx for versioned, navigable documentation.
-## Package surface
-
-- `mvp.add(a, b)` simple sanity function.
-- `mvp.Event` / `mvp.EventBus` for in-memory event publish + replay.
-- `mvp.MemoryRecord` / `mvp.VectorMemory` for minimal memory upsert/get.
-
-## Why this shape?
-
-This mirrors the diagram at a lightweight level:
-
-- EventBus approximates the ORA event-bus path.
-- VectorMemory provides a starter seam for later embedding-backed retrieval.
-- Tests validate core behavior so future expansion can happen with confidence.
-pip install -U pip
-pip install -e .[dev]
+```text
+intent -> execution -> observation -> memory
+       -> reflection -> mutation -> validation
+       -> evolution -> persistence
 ```
 
-### Option B: If extras are not configured yet
+The current codebase keeps this architecture intentionally lightweight:
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip pytest build
-pip install -e .
-pytest
-python -m build
-```
+- `EventBus` approximates the event-bus path for local experiments.
+- `VectorMemory` provides a starter seam for future embedding-backed retrieval.
+- Runtime modules under `runtime/` sketch reflection, mutation, and persistence
+  concepts that can be hardened as the project matures.
+
+## Versioning and changelog
+
+This project follows [Semantic Versioning](https://semver.org/):
+
+- **MAJOR** versions contain incompatible API changes.
+- **MINOR** versions add backwards-compatible functionality.
+- **PATCH** versions contain backwards-compatible bug fixes.
+
+Released and unreleased changes are tracked in [`CHANGELOG.md`](./CHANGELOG.md)
+using the Keep a Changelog structure.
 
 ## Release process
 
@@ -130,107 +168,4 @@ python -m build
 2. Bump `project.version` in `pyproject.toml`.
 3. Move release notes from `Unreleased` to a dated version section.
 4. Commit and push.
-5. Create and push a SemVer tag (for example `v0.2.0`).
-
-Tag pushes matching `v*.*.*` run the publish workflow:
-
-- Publishes to **TestPyPI** if `TEST_PYPI_API_TOKEN` is present.
-- Publishes to **PyPI** if `PYPI_API_TOKEN` is present.
-
-You can also run the publish workflow manually and choose `testpypi` or `pypi`.
-pip install -U pip
-pip install -e .
-pip install pytest ruff mypy
-```
-
-## Quick usage examples
-
-### Import and call from Python
-
-```python
-from mvp import add
-
-print(add(1, 2))   # 3
-print(add(-5, 8))  # 3
-print(add(0, 0))   # 0
-```
-
-### Try in a one-liner
-
-```bash
-python -c "from mvp import add; print(add(10, 32))"
-```
-
-### Run tests
-
-```bash
-pytest
-```
-
-## Development workflow
-
-Use this sequence before opening a PR.
-
-1. **Format and lint**
-   ```bash
-   ruff format .
-   ruff check .
-   ```
-2. **Type check**
-   ```bash
-   mypy src
-   ```
-3. **Run test suite**
-   ```bash
-   pytest
-   ```
-
-If your environment requires explicit module resolution, use:
-
-```bash
-PYTHONPATH=src pytest
-A seed repository for building reflective, adaptive, memory-native engineering runtimes.
-
-## Features
-
-- Persistent memory layer
-- Adaptive orchestration runtime
-- Reflection engine
-- Mutation/evolution pipeline
-- Governance and coherence validation
-- Regeneration checkpoints
-
-## Quick Start
-
-```bash
-python runtime/main.py
-```
-
-## Architecture
-
-```
-intent -> execution -> observation -> memory
-       -> reflection -> mutation -> validation
-       -> evolution -> persistence
-```
-
-## Project goals
-
-- Keep a small, readable baseline Python package template.
-- Provide a fast feedback loop for tests, linting, and typing.
-- Stay easy to extend into real application or library code.
-
-## Roadmap milestones
-
-- **Milestone 1: Foundation (current)**
-  - Stable package layout and import path.
-  - Passing tests for core functions.
-- **Milestone 2: Developer tooling hardening**
-  - Ensure `.[dev]` extras are fully defined and reproducible.
-  - Add CI to enforce lint/test/typecheck on every change.
-- **Milestone 3: API growth and documentation**
-  - Expand public API beyond arithmetic demo helpers.
-  - Add `docs/` with MkDocs or Sphinx once API surface grows.
-- **Milestone 4: Distribution readiness**
-  - Versioning/release process.
-  - Packaging and publishing checks.
+5. Create and push a SemVer tag, such as `v0.2.0`.
