@@ -1,5 +1,4 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
 requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -21,7 +20,19 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
-  "Topic :: Software Development :: Libraries"
+  "Topic :: Software Development :: Libraries",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=5.0",
+  "ruff>=0.6",
+  "mypy>=1.11",
+  "coverage[toml]>=7.6",
+  "build>=1.2",
+  "twine>=5.1",
 ]
 
 [project.urls]
@@ -30,68 +41,10 @@ Repository = "https://github.com/example/mvp"
 Changelog = "https://github.com/example/mvp/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
-
-[tool.setuptools.packages.find]
-where = ["src"]
-requires-python = ">=3.11"
-license = "MIT"
-authors = [{ name = "MVP maintainers" }]
-classifiers = [
-  "Development Status :: 3 - Alpha",
-  "Intended Audience :: Developers",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-]
-readme = "README.md"
-requires-python = ">=3.11"
-license = { text = "MIT" }
-authors = [
-  { name = "MVP Contributors" }
-]
-classifiers = [
-  "Development Status :: 3 - Alpha",
-  "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Topic :: Software Development :: Libraries"
-]
-]
-dependencies = []
-
-[project.urls]
-Homepage = "https://example.com/mvp"
-Repository = "https://example.com/mvp.git"
-Issues = "https://example.com/mvp/issues"
-Changelog = "https://example.com/mvp/releases"
-Changelog = "https://example.com/mvp/blob/main/CHANGELOG.md"
-
-[tool.setuptools]
 package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
-Issues = "https://example.com/mvp/issues"
-
-[dependency-groups]
-dev = [
-  "pytest>=8.0",
-  "ruff>=0.6",
-  "mypy>=1.11",
-  "coverage[toml]>=7.6",
-  "build>=1.2",
-  "twine>=5.1"
-  "ruff>=0.5",
-  "mypy>=1.10",
-  "coverage[toml]>=7.5",
-  "build>=1.2",
-  "twine>=5.1",
-]
 
 [tool.pytest.ini_options]
 addopts = "-q"
@@ -103,7 +56,6 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
-select = ["E", "F", "I", "B", "UP"]
 ignore = []
 
 [tool.ruff.format]
@@ -118,6 +70,8 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 show_error_codes = true
 pretty = true
+mypy_path = "src"
+files = ["src", "tests"]
 
 [tool.coverage.run]
 source = ["src/mvp"]
@@ -129,17 +83,6 @@ skip_covered = false
 fail_under = 90
 exclude_lines = [
   "pragma: no cover",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:"
+  "if __name__ == .__main__:",
+  "if TYPE_CHECKING:",
 ]
-mypy_path = "src"
-files = ["src", "tests"]
-
-[tool.coverage.run]
-branch = true
-source = ["src/mvp"]
-
-[tool.coverage.report]
-show_missing = true
-skip_covered = true
-fail_under = 90

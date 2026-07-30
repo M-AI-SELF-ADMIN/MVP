@@ -3,8 +3,5 @@ def reflect(memory):
 
     memory.record(
         "reflection_cycle",
-        {
-            "coherence": "stable",
-            "drift_detected": False
-        }
+        {"coherence": "stable", "drift_detected": False}
     )
