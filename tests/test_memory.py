@@ -1,4 +1,4 @@
-from mvp.memory import VectorMemory
+from mvp import VectorMemory
 
 
 def test_vector_memory_upsert_and_get() -> None:

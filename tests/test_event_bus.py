@@ -1,4 +1,4 @@
-from mvp.core import Event, EventBus
+from mvp import Event, EventBus
 
 
 def test_event_bus_publish_and_replay() -> None:

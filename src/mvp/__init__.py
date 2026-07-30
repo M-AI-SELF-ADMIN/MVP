@@ -1,12 +1,14 @@
-"""MVP package."""
+"""Stable public API for the MVP package.
 
-from mvp.core import Event, EventBus
-from mvp.memory import MemoryRecord, VectorMemory
+Import application-facing objects from this module instead of reaching into
+implementation modules. Domain modules (for example ``mvp.math_ops`` and
+``mvp.core``) may evolve independently while the names exported here remain the
+supported compatibility surface.
+"""
 
-
-def add(a: int, b: int) -> int:
-    return a + b
-
+from .core import Event, EventBus
+from .math_ops import add
+from .memory import MemoryRecord, VectorMemory
 
 __all__ = [
     "Event",
@@ -15,8 +17,8 @@ __all__ = [
     "VectorMemory",
     "add",
 ]
-"""Public API surface for the MVP package."""
 
-from .math_ops import add
 
-__all__ = ["add"]
+def __dir__() -> list[str]:
+    """Return the stable public API for interactive discovery."""
+    return sorted(__all__)
