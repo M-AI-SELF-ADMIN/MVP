@@ -1,3 +1,4 @@
+"""Math-related operations exposed by the public ``mvp`` API."""
 """Mathematical operations for the public MVP API."""
 
 

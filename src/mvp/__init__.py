@@ -1,4 +1,6 @@
-"""MVP package."""
+"""Top-level public API for the :mod:`mvp` package."""
+
+from .math_ops import add
 
 from mvp.core import Event, EventBus
 from mvp.memory import MemoryRecord, VectorMemory
