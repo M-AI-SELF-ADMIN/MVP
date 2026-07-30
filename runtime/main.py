@@ -1,6 +1,6 @@
 from cognition.reflection_engine import reflect
-from memory.memory_store import MemoryStore
 from evolution.mutation_engine import propose_mutation
+from memory.memory_store import MemoryStore
 
 
 def boot():
